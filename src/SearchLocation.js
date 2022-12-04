@@ -17,20 +17,20 @@ import { GrRadialSelected } from "react-icons/gr";
 import { AiOutlinePlus } from "react-icons/ai";
 import usePlacesAutocomplete, {
   getGeocode,
-  getLatLng
+  getLatLng,
 } from "use-places-autocomplete";
 
 import useOnclickOutside from "react-cool-onclickoutside";
 
 const useStyles = makeStyles({
   scrollPaper: {
-    alignItems: "baseline"
+    alignItems: "baseline",
     // margin :0
   },
   paper: {
     minWidth: "100vw",
-    maxHeight: "200px"
-  }
+    maxHeight: "200px",
+  },
 });
 
 function SwitchRider(props) {
@@ -42,7 +42,7 @@ function SwitchRider(props) {
       classes={{
         scrollPaper: classes.scrollPaper,
         paper: classes.paper,
-        root: classes.root
+        root: classes.root,
       }}
     >
       <div className="newpage font_face_ps">
@@ -95,12 +95,12 @@ function SearchLocation() {
     value,
     suggestions: { status, data },
     setValue,
-    clearSuggestions
+    clearSuggestions,
   } = usePlacesAutocomplete({
     requestOptions: {
       /* Define search scope here */
     },
-    debounce: 300
+    debounce: 300,
   });
   const ref = useOnclickOutside(() => {
     // When user clicks outside of the component, we can dismiss
@@ -112,31 +112,47 @@ function SearchLocation() {
     // Update the keyword of the input element
     setValue(e.target.value);
   };
-  const handleSelect = ({ description }) => () => {
-    // When user selects a place, we can replace the keyword without request data from API
-    // by setting the second parameter to "false"
-    setValue(description, false);
-    clearSuggestions();
-    // Get latitude and longitude via utility functions
-    getGeocode({ address: description })
-      .then((results) => getLatLng(results[0]))
-      .then(({ lat, lng }) => {
-        console.log("📍 Coordinates: ", { lat, lng });
-      })
-      .catch((error) => {
-        console.log("Error: ", error);
-      });
-  };
+  const handleSelect =
+    ({ description }) =>
+    () => {
+      // When user selects a place, we can replace the keyword without request data from API
+      // by setting the second parameter to "false"
+      setValue(description, false);
+      clearSuggestions();
+      // Get latitude and longitude via utility functions
+      getGeocode({ address: description })
+        .then((results) => getLatLng(results[0]))
+        .then(({ lat, lng }) => {
+          console.log("📍 Coordinates: ", { lat, lng });
+        })
+        .catch((error) => {
+          console.log("Error: ", error);
+        });
+    };
   const renderSuggestions = () =>
     data.map((suggestion) => {
       const {
         id,
-        structured_formatting: { main_text, secondary_text }
+        structured_formatting: { main_text, secondary_text },
       } = suggestion;
       return (
-        <li key={id} onClick={handleSelect(suggestion)}>
-          <strong>{main_text}</strong> <small>{secondary_text}</small>
-        </li>
+        <div
+          key={id}
+          onClick={handleSelect(suggestion)}
+          className="address_section bottom_line new_mrg"
+        >
+          <div className="saved_place_container">
+            <IconContext.Provider value={{ color: "#FFFFFF" }}>
+              <div className="user_detail">
+                <GiBackwardTime />
+              </div>
+            </IconContext.Provider>
+            <div className="main_detail">
+              <p className="info_user">{main_text}</p>
+              <p className="full_detail">{secondary_text}</p>
+            </div>
+          </div>
+        </div>
       );
     });
   const handleClose = () => {
@@ -222,21 +238,7 @@ function SearchLocation() {
         <div className="last_search">
           <h4 className="recent_search">Results</h4>
 
-          <div className="address_section bottom_line new_mrg">
-            <div className="saved_place_container">
-              <IconContext.Provider value={{ color: "#FFFFFF" }}>
-                <div className="user_detail">
-                  <GiBackwardTime />
-                </div>
-              </IconContext.Provider>
-              <div className="main_detail">
-                <p className="info_user">Praca seca rio de janeiro</p>
-                <p className="full_detail">
-                  <ul>{renderSuggestions()}</ul>
-                </p>
-              </div>
-            </div>
-          </div>
+          {renderSuggestions()}
         </div>
         <div className="last_search">
           <h4 className="recent_search">Recent search</h4>
